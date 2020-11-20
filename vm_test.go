@@ -5,6 +5,8 @@ import (
 	"testing"
 )
 
+
+
 func BenchmarkVM_Execute_Add10000000Numbers(b *testing.B) {
 	x := make([]byte, 4)
 	binary.LittleEndian.PutUint32(x, 10000000)

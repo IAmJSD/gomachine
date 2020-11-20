@@ -120,6 +120,18 @@ const (
 	// InstructionJmpIfNe is used to jump if R3 is not equal to R1.
 	InstructionJmpIfNe
 
+	// InstructionJmpIfGt is used to jump if R1 is greater than R3.
+	InstructionJmpIfGt
+
+	// InstructionJmpIfLt is used to jump if R1 is less than R3.
+	InstructionJmpIfLt
+
+	// InstructionJmpIfGtOrEqual is used to jump if R1 is greater than or equal to R3.
+	InstructionJmpIfGtOrEqual
+	
+	// InstructionJmpIfLtOrEqual is used to jump if R1 is less than or equal to R3.
+	InstructionJmpIfLtOrEqual
+
 	// InstructionSyscall is used to make a system call with the instruction in R1. System calls are expected to throw errors in R3.
 	InstructionSyscall
 )
@@ -473,6 +485,74 @@ func (v *VM) Execute(Bytecode []byte) error {
 				return InvalidInstructionArgument
 			}
 			if *r1 != *r3 {
+				bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 1)
+				location := *(*uint64)(bytecodePtr)
+				if location >= bytecodeLen {
+					return InvalidMemoryLocation
+				}
+				bytecodePtr = (unsafe.Pointer)(&Bytecode[location])
+				bytecodeIndex = location
+				goto s
+			} else {
+				bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 8)
+			}
+		case InstructionJmpIfGt:
+			bytecodeIndex += 8
+			if bytecodeIndex >= bytecodeLen {
+				return InvalidInstructionArgument
+			}
+			if *r1 > *r3 {
+				bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 1)
+				location := *(*uint64)(bytecodePtr)
+				if location >= bytecodeLen {
+					return InvalidMemoryLocation
+				}
+				bytecodePtr = (unsafe.Pointer)(&Bytecode[location])
+				bytecodeIndex = location
+				goto s
+			} else {
+				bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 8)
+			}
+		case InstructionJmpIfLt:
+			bytecodeIndex += 8
+			if bytecodeIndex >= bytecodeLen {
+				return InvalidInstructionArgument
+			}
+			if *r1 < *r3 {
+				bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 1)
+				location := *(*uint64)(bytecodePtr)
+				if location >= bytecodeLen {
+					return InvalidMemoryLocation
+				}
+				bytecodePtr = (unsafe.Pointer)(&Bytecode[location])
+				bytecodeIndex = location
+				goto s
+			} else {
+				bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 8)
+			}
+		case InstructionJmpIfGtOrEqual:
+			bytecodeIndex += 8
+			if bytecodeIndex >= bytecodeLen {
+				return InvalidInstructionArgument
+			}
+			if *r1 >= *r3 {
+				bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 1)
+				location := *(*uint64)(bytecodePtr)
+				if location >= bytecodeLen {
+					return InvalidMemoryLocation
+				}
+				bytecodePtr = (unsafe.Pointer)(&Bytecode[location])
+				bytecodeIndex = location
+				goto s
+			} else {
+				bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 8)
+			}
+		case InstructionJmpIfLtOrEqual:
+			bytecodeIndex += 8
+			if bytecodeIndex >= bytecodeLen {
+				return InvalidInstructionArgument
+			}
+			if *r1 <= *r3 {
 				bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 1)
 				location := *(*uint64)(bytecodePtr)
 				if location >= bytecodeLen {
