@@ -46,6 +46,9 @@ const (
 	// InstructionMoveR2ToR3 is used to move R2 into R3.
 	InstructionMoveR2ToR3
 
+	// InstructionFlipR1R2 is used to flip the values of R1 and R2.
+	InstructionFlipR1R2
+
 	// InstructionMoveR3ToR1 is used to move R3 into R1.
 	InstructionMoveR3ToR1
 
@@ -333,6 +336,11 @@ func (v *VM) Execute(Bytecode []byte) error {
 			*r4 = 0
 		case InstructionMoveR2ToR3:
 			*r3 = *r2
+			*r4 = 0
+		case InstructionFlipR1R2:
+			x := *r1
+			*r1 = *r2
+			*r2 = x
 			*r4 = 0
 		case InstructionMoveR3ToR1:
 			*r1 = *r3
