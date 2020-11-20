@@ -187,7 +187,7 @@ func (v *VM) Execute(Bytecode []byte) error {
 	// Go through the bytecode.
 	bytecodeIndex := uint64(0)
 	for bytecodeIndex != bytecodeLen {
-		s:
+	s:
 		// Do a time check.
 		if doTimeChecks {
 			if time.Now().Sub(startTime) >= v.MaxCPUTime {
@@ -256,7 +256,7 @@ func (v *VM) Execute(Bytecode []byte) error {
 			bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 1)
 			memoryLocation := *(*uint64)(bytecodePtr)
 			bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 7)
-			if memoryLocation + 1 >= virtualMemoryLen {
+			if memoryLocation+1 >= virtualMemoryLen {
 				return InvalidMemoryLocation
 			}
 			*r1 = uint64(*(*uint16)(unsafe.Pointer(virtualMemory + uintptr(memoryLocation))))
@@ -269,7 +269,7 @@ func (v *VM) Execute(Bytecode []byte) error {
 			bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 1)
 			memoryLocation := *(*uint64)(bytecodePtr)
 			bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 7)
-			if memoryLocation + 3 >= virtualMemoryLen {
+			if memoryLocation+3 >= virtualMemoryLen {
 				return InvalidMemoryLocation
 			}
 			*r1 = uint64(*(*uint32)(unsafe.Pointer(virtualMemory + uintptr(memoryLocation))))
@@ -282,7 +282,7 @@ func (v *VM) Execute(Bytecode []byte) error {
 			bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 1)
 			memoryLocation := *(*uint64)(bytecodePtr)
 			bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 7)
-			if memoryLocation + 7 >= virtualMemoryLen {
+			if memoryLocation+7 >= virtualMemoryLen {
 				return InvalidMemoryLocation
 			}
 			*r1 = *(*uint64)(unsafe.Pointer(virtualMemory + uintptr(memoryLocation)))
@@ -339,7 +339,7 @@ func (v *VM) Execute(Bytecode []byte) error {
 			bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 1)
 			memoryLocation := *(*uint64)(bytecodePtr)
 			bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 7)
-			if memoryLocation + 1 >= virtualMemoryLen {
+			if memoryLocation+1 >= virtualMemoryLen {
 				return InvalidMemoryLocation
 			}
 			*(*uint16)(unsafe.Pointer(virtualMemory + uintptr(memoryLocation))) = uint16(*r1)
@@ -352,7 +352,7 @@ func (v *VM) Execute(Bytecode []byte) error {
 			bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 1)
 			memoryLocation := *(*uint64)(bytecodePtr)
 			bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 7)
-			if memoryLocation + 3 >= virtualMemoryLen {
+			if memoryLocation+3 >= virtualMemoryLen {
 				return InvalidMemoryLocation
 			}
 			*(*uint32)(unsafe.Pointer(virtualMemory + uintptr(memoryLocation))) = uint32(*r1)
@@ -365,7 +365,7 @@ func (v *VM) Execute(Bytecode []byte) error {
 			bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 1)
 			memoryLocation := *(*uint64)(bytecodePtr)
 			bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 7)
-			if memoryLocation + 7 >= virtualMemoryLen {
+			if memoryLocation+7 >= virtualMemoryLen {
 				return InvalidMemoryLocation
 			}
 			*(*uint64)(unsafe.Pointer(virtualMemory + uintptr(memoryLocation))) = *r1
@@ -526,8 +526,8 @@ func (v *VM) Execute(Bytecode []byte) error {
 // ClearRegisters is used to clear the registers of the virtual CPU.
 func (v *VM) ClearRegisters() {
 	_ = v.Execute([]byte{
-		InstructionUint8Load, // Insert uint8 into R1.
-		0x00, // uint8 for 0.
+		InstructionUint8Load,  // Insert uint8 into R1.
+		0x00,                  // uint8 for 0.
 		InstructionMoveR1ToR2, // Move R2 <- [R1].
 		InstructionMoveR1ToR3, // Move R3 <- [R1].
 	})
@@ -545,7 +545,7 @@ func NewVM(MemoryLength uint64, MaxCPUTime time.Duration) *VM {
 	return &VM{
 		Memory:     make([]byte, MemoryLength),
 		MaxCPUTime: MaxCPUTime,
-		Syscalls:	map[uint64]func(*VM) error{},
+		Syscalls:   map[uint64]func(*VM) error{},
 		Registers:  [4]uint64{},
 	}
 }
