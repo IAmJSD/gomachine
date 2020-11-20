@@ -94,6 +94,12 @@ const (
 	// InstructionSignedDiv is used to divide R1 against R2 and treat them as signed integers. The result is stored in R1, and if you try and divide by 0 it returns 1 in R4.
 	InstructionSignedDiv
 
+	// InstructionUnsignedMul is used to multiply R1 with R2 and treat them as unsigned integers. The result is stored in R1.
+	InstructionUnsignedMul
+
+	// InstructionSignedMul is used to multiply R1 with R2 and treat them as signed integers. The result is stored in R1.
+	InstructionSignedMul
+
 	// InstructionUnsignedMod is used to mod R1 against R2 and treat them as unsigned integers. The result is stored in R1, and if you try and divide by 0 it returns 1 in R4.
 	InstructionUnsignedMod
 
@@ -434,6 +440,14 @@ func (v *VM) Execute(Bytecode []byte) error {
 				*(*int64)(unsafe.Pointer(r1)) /= *(*int64)(unsafe.Pointer(r2))
 				*r4 = 0
 			}
+
+		// Multiply instructions.
+		case InstructionUnsignedMul:
+			*r1 *= *r2
+			*r4 = 0
+		case InstructionSignedMul:
+			*(*int64)(unsafe.Pointer(r1)) *= *(*int64)(unsafe.Pointer(r2))
+			*r4 = 0
 
 		// Modulo instructions.
 		case InstructionUnsignedMod:
