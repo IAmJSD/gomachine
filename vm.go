@@ -3,6 +3,7 @@ package gomachine
 import (
 	"errors"
 	"runtime"
+	"sync/atomic"
 	"time"
 	"unsafe"
 )
@@ -190,11 +191,22 @@ func (v *VM) Execute(Bytecode []byte) error {
 	r3 := &v.Registers[2]
 	r4 := &v.Registers[3]
 
-	// Defines the start time.
-	startTime := time.Now()
+	// Defines if we should stop.
+	shouldStop := uintptr(0)
 
-	// Defines if we should do time checks.
+	// Defines if we should do time checks and handle them if so.
 	doTimeChecks := v.MaxCPUTime != 0
+	var timer *time.Timer
+	if doTimeChecks {
+		timer = time.AfterFunc(v.MaxCPUTime, func() {
+			atomic.StoreUintptr(&shouldStop, 1)
+		})
+	}
+	defer func() {
+		if timer != nil {
+			timer.Stop()
+		}
+	}()
 
 	// Go through the bytecode.
 	bytecodeIndex := uint64(0)
@@ -202,7 +214,7 @@ func (v *VM) Execute(Bytecode []byte) error {
 	s:
 		// Do a time check.
 		if doTimeChecks {
-			if time.Now().Sub(startTime) >= v.MaxCPUTime {
+			if atomic.LoadUintptr(&shouldStop) == 1 {
 				return CPUTimeExhausted
 			}
 		}
