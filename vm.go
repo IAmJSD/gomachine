@@ -127,6 +127,9 @@ const (
 	// InstructionJmp is used to jump to another place in the bytecode.
 	InstructionJmp
 
+	// InstructionJmpIfZero is used to jump if R3 is not equal to R1.
+	InstructionJmpIfZero
+
 	// InstructionJmpIfEq is used to jump if R3 is equal to R1.
 	InstructionJmpIfEq
 
@@ -504,6 +507,23 @@ func (v *VM) Execute(Bytecode []byte) error {
 			bytecodePtr = (unsafe.Pointer)(&Bytecode[location])
 			bytecodeIndex = location
 			goto s
+		case InstructionJmpIfZero:
+			bytecodeIndex += 8
+			if bytecodeIndex >= bytecodeLen {
+				return InvalidInstructionArgument
+			}
+			if *r1 == 0 {
+				bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 1)
+				location := *(*uint64)(bytecodePtr)
+				if location >= bytecodeLen {
+					return InvalidMemoryLocation
+				}
+				bytecodePtr = (unsafe.Pointer)(&Bytecode[location])
+				bytecodeIndex = location
+				goto s
+			} else {
+				bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 8)
+			}
 		case InstructionJmpIfEq:
 			bytecodeIndex += 8
 			if bytecodeIndex >= bytecodeLen {
