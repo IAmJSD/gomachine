@@ -96,6 +96,21 @@ const (
 	// InstructionSignedMod is used to mod R1 against R2 and treat them as signed integers. The result is stored in R1, and if you try and divide by 0 it returns 1 in R4.
 	InstructionSignedMod
 
+	// InstructionBitwiseAnd is used to perform bitwise and on R1 with R2. The result is stored in R1.
+	InstructionBitwiseAnd
+
+	// InstructionBitwiseOr is used to perform bitwise or on R1 with R2. The result is stored in R1.
+	InstructionBitwiseOr
+
+	// InstructionBitwiseXor is used to perform bitwise xor on R1 with R2. The result is stored in R1.
+	InstructionBitwiseXor
+
+	// InstructionBitwiseLeftShift is used to shift R1 left the number of bits specified in R2. The result is stored in R1.
+	InstructionBitwiseLeftShift
+
+	// InstructionBitwiseRightShift is used to shift R1 right the number of bits specified in R2. The result is stored in R1.
+	InstructionBitwiseRightShift
+
 	// InstructionJmp is used to jump to another place in the bytecode.
 	InstructionJmp
 
@@ -359,14 +374,18 @@ func (v *VM) Execute(Bytecode []byte) error {
 		// Addition instructions.
 		case InstructionUnsignedAdd:
 			*r1 += *r2
+			*r4 = 0
 		case InstructionSignedAdd:
-			*(*int64)(unsafe.Pointer(&r1)) += *(*int64)(unsafe.Pointer(&r2))
+			*(*int64)(unsafe.Pointer(r1)) += *(*int64)(unsafe.Pointer(r2))
+			*r4 = 0
 
 		// Subtraction instructions.
 		case InstructionUnsignedSub:
 			*r1 -= *r2
+			*r4 = 0
 		case InstructionSignedSub:
-			*(*int64)(unsafe.Pointer(&r1)) -= *(*int64)(unsafe.Pointer(&r2))
+			*(*int64)(unsafe.Pointer(r1)) -= *(*int64)(unsafe.Pointer(r2))
+			*r4 = 0
 
 		// Division instructions.
 		case InstructionUnsignedDiv:
@@ -374,12 +393,14 @@ func (v *VM) Execute(Bytecode []byte) error {
 				*r4 = 1
 			} else {
 				*r1 /= *r2
+				*r4 = 0
 			}
 		case InstructionSignedDiv:
 			if *r2 == 0 {
 				*r4 = 1
 			} else {
-				*(*int64)(unsafe.Pointer(&r1)) /= *(*int64)(unsafe.Pointer(&r2))
+				*(*int64)(unsafe.Pointer(r1)) /= *(*int64)(unsafe.Pointer(r2))
+				*r4 = 0
 			}
 
 		// Modulo instructions.
@@ -388,13 +409,32 @@ func (v *VM) Execute(Bytecode []byte) error {
 				*r4 = 1
 			} else {
 				*r1 %= *r2
+				*r4 = 0
 			}
 		case InstructionSignedMod:
 			if *r2 == 0 {
 				*r4 = 1
 			} else {
-				*(*int64)(unsafe.Pointer(&r1)) %= *(*int64)(unsafe.Pointer(&r2))
+				*(*int64)(unsafe.Pointer(r1)) %= *(*int64)(unsafe.Pointer(r2))
+				*r4 = 0
 			}
+
+		// Bitwise instructions.
+		case InstructionBitwiseAnd:
+			*r1 &= *r2
+			*r4 = 0
+		case InstructionBitwiseOr:
+			*r1 |= *r2
+			*r4 = 0
+		case InstructionBitwiseXor:
+			*r1 ^= *r2
+			*r4 = 0
+		case InstructionBitwiseLeftShift:
+			*r1 <<= *r2
+			*r4 = 0
+		case InstructionBitwiseRightShift:
+			*r1 >>= *r2
+			*r4 = 0
 
 		// Jump instruction.
 		case InstructionJmp:
@@ -455,6 +495,7 @@ func (v *VM) Execute(Bytecode []byte) error {
 			syscall := *(*uint64)(bytecodePtr)
 			bytecodePtr = (unsafe.Pointer)((uintptr)(bytecodePtr) + 7)
 			call, ok := v.Syscalls[syscall]
+			*r4 = 0
 			if ok {
 				// Attempt the system call.
 				if err := call(v); err != nil {
